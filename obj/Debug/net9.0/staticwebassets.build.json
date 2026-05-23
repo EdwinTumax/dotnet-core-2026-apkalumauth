@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "ZHXmiHnwRPMPnyvDv9bspYf5AZ5eX4AiTasQrgrNDdA=",
+  "Source": "ApiKalumAuth",
+  "BasePath": "_content/ApiKalumAuth",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}
