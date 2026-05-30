@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ApiKalumAuth")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+f13a3714024b8539a5477910a700f06f2470605f")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ff3a5889cd5a31f66ab5aa82422220988163727e")]
 [assembly: System.Reflection.AssemblyProductAttribute("ApiKalumAuth")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ApiKalumAuth")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

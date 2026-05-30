@@ -33,7 +33,7 @@ namespace ApiKalumAuth.Controllers
                 return NoContent();
             }
             List<UserListDTO> usersListDTO = this._mapper.Map<List<UserListDTO>>(users);
-            return Ok(usersListDTO);
+            return Ok(ApiResponseDTO<Object>.Ok(usersListDTO));
         }
         
         [HttpGet("{id}", Name ="GetUserById")]
@@ -42,9 +42,9 @@ namespace ApiKalumAuth.Controllers
             IdentityUser user = await this._userManager.Users.FirstOrDefaultAsync(U => U.Id == id);
             if(user == null)
             {
-                return NoContent();
+                return NotFound(ApiResponseDTO<Object>.Fail($"No existe el usuario con el id {id}"));
             }
-            return Ok(this._mapper.Map<UserListDTO>(user));
+            return Ok(ApiResponseDTO<Object>.Ok(this._mapper.Map<UserListDTO>(user)));
 
         }
 
@@ -58,7 +58,8 @@ namespace ApiKalumAuth.Controllers
                 var user = await this._userManager.FindByEmailAsync(userCreatedDTO.Email);
                 return new CreatedAtRouteResult("GetUserById", new {id = user.Id});
             }
-            return BadRequest("Error en el registro del usuario");            
+            List<string> errores =  userNew.Errors.Select(e => e.Description).ToList();
+            return BadRequest(ApiResponseDTO<Object>.Fail("Error en el registro del usuario", errores));            
         }
 
         [HttpDelete("{id}")]
@@ -67,14 +68,15 @@ namespace ApiKalumAuth.Controllers
             ApplicationUser applicationUser = await this._userManager.FindByIdAsync(id);
             if(applicationUser == null)
             {
-                return NotFound($"No existe el usuario con el id ${id}");
+                return NotFound(ApiResponseDTO<Object>.Fail($"Error al eliminar el registro", new List<string>() {$"No existe el usuario con el id {id}"}));
             }
             var result = await this._userManager.DeleteAsync(applicationUser);
             if(result.Succeeded)
             {
                 return NoContent();
             }
-            return BadRequest("No se logro eliminar el registro");
+            List<string> errores = result.Errors.Select(e => e.Description).ToList();
+            return BadRequest(ApiResponseDTO<Object>.Fail("No se logro eliminar el registro",errores));
         }
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(string id, [FromBody] UserUpdateDTO userUpdatedDTO)
@@ -82,7 +84,7 @@ namespace ApiKalumAuth.Controllers
             ApplicationUser applicationUser = await this._userManager.FindByIdAsync(id);
             if(applicationUser == null)
             {
-                return NotFound($"No existe el usuario con el id ${id}");
+                return NotFound(ApiResponseDTO<Object>.Fail("Error al actualizar la información", new List<string>() {$"No existe el usuario con el id {id}"}));
             }
             applicationUser.UserName = userUpdatedDTO.UserName ?? applicationUser.UserName;
             applicationUser.FirstName = userUpdatedDTO.FirstName ?? applicationUser.FirstName;
@@ -93,7 +95,8 @@ namespace ApiKalumAuth.Controllers
             {
                 return NoContent();
             }
-            return BadRequest("Error al momento de actualizar la información");
+            List<string> errores = result.Errors.Select(e => e.Description).ToList();
+            return BadRequest(ApiResponseDTO<Object>.Fail("Error al momento de actualizar la información",errores));
         }
 
     }
