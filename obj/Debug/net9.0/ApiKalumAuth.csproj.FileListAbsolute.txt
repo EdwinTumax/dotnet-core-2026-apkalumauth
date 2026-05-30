@@ -169,3 +169,6 @@
 /Users/edwinrolandotumax/Documents/2026/net/backend/prod/ApiKalumAuth/obj/Debug/net9.0/ApiKalumAuth.pdb
 /Users/edwinrolandotumax/Documents/2026/net/backend/prod/ApiKalumAuth/obj/Debug/net9.0/ApiKalumAuth.genruntimeconfig.cache
 /Users/edwinrolandotumax/Documents/2026/net/backend/prod/ApiKalumAuth/obj/Debug/net9.0/ref/ApiKalumAuth.dll
+/Users/edwinrolandotumax/Documents/2026/net/backend/prod/ApiKalumAuth/obj/Debug/net9.0/ApiKalumAuth.sourcelink.json
+/Users/edwinrolandotumax/Documents/2026/net/backend/prod/ApiKalumAuth/bin/Debug/net9.0/AutoMapper.dll
+/Users/edwinrolandotumax/Documents/2026/net/backend/prod/ApiKalumAuth/bin/Debug/net9.0/AutoMapper.Extensions.Microsoft.DependencyInjection.dll
