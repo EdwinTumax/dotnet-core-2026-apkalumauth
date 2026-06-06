@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiKalumAuth.Entities;
 using AutoMapper;
+using Microsoft.AspNetCore.Identity;
 
 namespace ApiKalumAuth.DTOs
 {
@@ -13,6 +14,8 @@ namespace ApiKalumAuth.DTOs
         {
             CreateMap<ApplicationUser, UserListDTO>();
             CreateMap<UserCreatedDTO, ApplicationUser>();
+            CreateMap<IdentityRole, RoleListDTO>();
+            CreateMap<RoleCreatedDTO, IdentityRole>();
         }
     }
 }
