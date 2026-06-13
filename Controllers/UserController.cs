@@ -6,6 +6,7 @@ using ApiKalumAuth.DBContext;
 using ApiKalumAuth.DTOs;
 using ApiKalumAuth.Entities;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ namespace ApiKalumAuth.Controllers
 {
     [ApiController]
     [Route("kalum-auth/v1/user")]
+    [Authorize]
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;

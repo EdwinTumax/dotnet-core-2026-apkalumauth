@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ApiKalumAuth.DTOs;
 using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -13,6 +14,7 @@ namespace ApiKalumAuth.Controllers
 {
     [ApiController]
     [Route("kalum-auth/v1/role")]
+    [Authorize]
     public class RoleController : ControllerBase
     {
         private readonly RoleManager<IdentityRole> _roleManager;
