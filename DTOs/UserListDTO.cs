@@ -13,5 +13,6 @@ namespace ApiKalumAuth.DTOs
         public string UserName {set;get;}
         public string Email {set;get;}
         public string PhoneNumber {get;set;}        
+        public List<string> Roles {get;set;}
      }
 }

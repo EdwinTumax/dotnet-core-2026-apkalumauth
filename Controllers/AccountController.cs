@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using ApiKalumAuth.DTOs;
 using ApiKalumAuth.Entities;
 using ApiKalumAuth.Repositories.Interfaces;
+using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApiKalumAuth.Controllers
 {
@@ -21,13 +23,33 @@ namespace ApiKalumAuth.Controllers
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IUtils _utils;
-
-        public AccountController(UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, IUtils utils)
+        private readonly IMapper _mapper;
+        public AccountController(IMapper mapper, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, IUtils utils)
         {
             this._userManager = userManager;
             this._roleManager = roleManager;
             this._signInManager = signInManager;
             this._utils = utils;
+            this._mapper = mapper;
+        }
+
+        [HttpGet("user/search")]
+        public async Task<ActionResult> GetByEmail([FromQuery] string email)
+        {
+            ApplicationUser user = await this._userManager.Users.FirstOrDefaultAsync(u => u.Email == email);
+            if(user == null)
+            {
+                ModelState.AddModelError("NOT_FOUND", $"Usuario no encontrado con el email {email}");
+                return StatusCode(404,ApiResponseDTO<Object>
+                    .Fail($"No se encontro ningún usuario con el email {email}", ModelState.Values.SelectMany(e => e.Errors).Select(e => e.ErrorMessage).ToList()));
+            }
+            List<string> roles = (List<string>)await this._userManager.GetRolesAsync(user);
+            UserListDTO userListDTO = this._mapper.Map<UserListDTO>(user);
+            if(roles.Count > 0)
+            {
+                userListDTO.Roles = roles;                
+            }
+            return StatusCode(200, ApiResponseDTO<Object>.Ok(userListDTO));
         }
 
         [HttpPost("user/{id}")]

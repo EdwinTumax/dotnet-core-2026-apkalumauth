@@ -19,11 +19,13 @@ namespace ApiKalumAuth.Controllers
     public class UserController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly IMapper _mapper;
-        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper)
+        public UserController(UserManager<ApplicationUser> userManager, IMapper mapper, RoleManager<IdentityRole> roleManager)
         {
             this._userManager = userManager;
             this._mapper = mapper;
+            this._roleManager = roleManager;
         }
 
         [HttpGet]
@@ -34,7 +36,17 @@ namespace ApiKalumAuth.Controllers
             {
                 return NoContent();
             }
-            List<UserListDTO> usersListDTO = this._mapper.Map<List<UserListDTO>>(users);
+            List<UserListDTO> usersListDTO = new List<UserListDTO>();
+            foreach(var user in users)
+            {
+                List<string> roles = (List<string>)await this._userManager.GetRolesAsync(user);
+                UserListDTO userListDTO = this._mapper.Map<UserListDTO>(user);
+                if(roles.Count > 0)
+                {
+                    userListDTO.Roles = roles;                
+                }
+                usersListDTO.Add(userListDTO);
+            }            
             return Ok(ApiResponseDTO<Object>.Ok(usersListDTO));
         }
         
@@ -46,7 +58,14 @@ namespace ApiKalumAuth.Controllers
             {
                 return NotFound(ApiResponseDTO<Object>.Fail($"No existe el usuario con el id {id}"));
             }
-            return Ok(ApiResponseDTO<Object>.Ok(this._mapper.Map<UserListDTO>(user)));
+            ApplicationUser applicationUser = await this._userManager.FindByIdAsync(user.Id);
+            List<string> roles = (List<string>)await this._userManager.GetRolesAsync(applicationUser);
+            UserListDTO userListDTO = this._mapper.Map<UserListDTO>(user);
+            if(roles.Count > 0)
+            {
+                userListDTO.Roles = roles;                
+            }
+            return Ok(ApiResponseDTO<Object>.Ok(userListDTO));
 
         }
 
