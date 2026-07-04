@@ -17,20 +17,28 @@ namespace ApiKalumAuth.Shared.Helpers
     public class Utils : IUtils
     {
         private readonly ILogger<Utils> _logger;
+        private readonly IConfiguration _configuration;
 
-        public Utils(ILogger<Utils> logger)
+        public Utils(ILogger<Utils> logger, IConfiguration configuration)
         {
             this._logger = logger;
+            this._configuration = configuration;
         }
         public UserTokenDTO BuildToken(ApplicationUser applicationUser, List<string> roles)
         {
             List<Claim> claims =  roles.Select(r => new Claim(ClaimTypes.Role, r)).ToList();
             claims.Add(new Claim("username",applicationUser.UserName));
             claims.Add(new Claim("email", applicationUser.Email));            
-            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("019ec1e5-44d7-72d9-9d9d-bd28ea77dee0"));
+            SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(this._configuration.GetValue<string>("LocalServer:Auth:Key")));
             SigningCredentials credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             DateTime expiration = DateTime.UtcNow.AddHours(1);
-            JwtSecurityToken token = new JwtSecurityToken(issuer: "kalum-auth", audience: "kalum-auth", claims: claims, expires: expiration, signingCredentials: credentials);
+            JwtSecurityToken token = new JwtSecurityToken(
+                issuer: this._configuration.GetValue<string>("LocalServer:name"), 
+                audience: this._configuration.GetValue<string>("LocalServer:name"), 
+                claims: claims, 
+                expires: expiration, 
+                signingCredentials: credentials
+            );
             return new UserTokenDTO()
             {
               Token = new JwtSecurityTokenHandler().WriteToken(token),
@@ -41,7 +49,7 @@ namespace ApiKalumAuth.Shared.Helpers
         public void Log(long initialTime, string message, int responseCode, TypeLog typeLog, HttpContext httpContext, MethodLog methodLog)
         {
             LogDTO log = new LogDTO();
-            log.Name = "api-kalum-auth";
+            log.Name = this._configuration.GetValue<string>("LocalServer:name");
             log.HostName = httpContext.Request.Host.Value;
             httpContext.Request.Headers.TryGetValue("Authorization", out var apikey);
             log.ApiKey = String.IsNullOrEmpty(apikey) ? "" : apikey.ToString().Split(" ")[1].Split(".")[1];

@@ -1,10 +1,13 @@
 using System.Text;
 using ApiKalumAuth.DBContext;
+using ApiKalumAuth.DTOs;
 using ApiKalumAuth.Entities;
+using ApiKalumAuth.Middlewares;
 using ApiKalumAuth.Repositories.Interfaces;
 using ApiKalumAuth.Shared.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Serilog;
@@ -44,12 +47,47 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = false,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("019ec1e5-44d7-72d9-9d9d-bd28ea77dee0")),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetValue<string>("LocalServer:Auth:Key"))),
         ClockSkew = TimeSpan.Zero
+    };
+    options.Events = new JwtBearerEvents
+    {
+      OnChallenge = async context =>
+      {
+          context.HandleResponse();
+          context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+          context.Response.ContentType = "Application/json";
+          var response = new ApiResponseDTO<Object>
+          {
+            Success = false,
+            Message = "No esta autenticado",
+            Data = null,
+            Errors = new List<string>
+            {
+                "Debe enviar un token JWT válido"
+            }  
+          };
+          await context.Response.WriteAsJsonAsync(response);
+      }  
+    };
+});
+
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{
+    options.InvalidModelStateResponseFactory = context =>
+    {
+      var errors = context.ModelState
+        .Where(ms => ms.Value?.Errors.Count > 0)
+        .SelectMany(ms => ms.Value!.Errors)
+        .Select(e => e.ErrorMessage)
+        .ToList();
+        var response = ApiResponseDTO<Object>.Fail("Error de validacion", errors);
+        return new BadRequestObjectResult(response);  
     };
 });
 
 var app = builder.Build();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

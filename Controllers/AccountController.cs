@@ -22,17 +22,18 @@ namespace ApiKalumAuth.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IUtils _utils;
         private readonly IMapper _mapper;
-        public AccountController(IMapper mapper, UserManager<ApplicationUser> userManager, RoleManager<IdentityRole> roleManager, SignInManager<ApplicationUser> signInManager, IUtils utils)
+        private readonly IConfiguration _configuration;
+        public AccountController(IMapper mapper, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager, 
+            IUtils utils, IConfiguration configuration)
         {
             this._userManager = userManager;
-            this._roleManager = roleManager;
             this._signInManager = signInManager;
             this._utils = utils;
             this._mapper = mapper;
+            this._configuration = configuration;
         }
 
         [HttpGet("user/search")]
@@ -164,9 +165,9 @@ namespace ApiKalumAuth.Controllers
             var user = await this._userManager.CreateAsync(applicationUser, userCreatedDTO.Password);
             if(user.Succeeded)
             {
-                await this._userManager.AddToRoleAsync(applicationUser, "ROLE_USER");
+                await this._userManager.AddToRoleAsync(applicationUser, this._configuration.GetValue<string>("LocalServer:Auth:Role"));
                 this._utils.Log(initialTime,"El usuario fue creado de forma exitosa", 201, TypeLog.INFORMATION, HttpContext, MethodLog.POST);
-                return StatusCode(201, ApiResponseDTO<Object>.Ok(this._utils.BuildToken(applicationUser, new List<string>() {"ROLE_USER"})));   
+                return StatusCode(201, ApiResponseDTO<Object>.Ok(this._utils.BuildToken(applicationUser, new List<string>() {this._configuration.GetValue<string>("LocalServer:Auth:Role")})));   
             } 
             else
             {
