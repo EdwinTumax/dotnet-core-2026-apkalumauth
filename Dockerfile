@@ -18,6 +18,6 @@ COPY --from=build /app/publish .
 ENV ASPNETCORE_ENVIRONMENT=Production
 ENV ASPNETCORE_URLS=http://+:5013
 # Exponemos el puerto 5278
-EXPOSE 5278
+EXPOSE 5013
 # Indicar el archivo dll compilado (Nombre del proyecto)
 ENTRYPOINT ["dotnet","ApiKalumAuth.dll"]

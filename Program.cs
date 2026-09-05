@@ -25,10 +25,18 @@ Log.Logger = new LoggerConfiguration()
     .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Level == LogEventLevel.Error && le.Properties.ContainsKey("SourceContext") && le.Properties["SourceContext"].ToString().Contains("ApiKalumAuth.Shared.Helpers"))
     .WriteTo.File("logs/logEventKalumAuthApi.error", outputTemplate: "{Message:lj}{NewLine}", rollingInterval: RollingInterval.Day))
     .CreateLogger();
-
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Host.UseSerilog();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowKalumApp", policy =>
+    {
+       policy.AllowAnyOrigin()
+        .AllowAnyHeader()
+        .AllowAnyMethod(); 
+    });
+});
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddTransient<IUtils,Utils>();
 builder.Services.AddOpenApi();
@@ -87,6 +95,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 var app = builder.Build();
+app.UseCors("AllowKalumApp");
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Configure the HTTP request pipeline.
@@ -94,7 +103,6 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
-
 //app.UseHttpsRedirection();
 app.MapControllers();
 app.Run();
