@@ -1,0 +1,1 @@
+{"Name":"api-kalum-auth","HostName":"dev-dotnet-2026-api-auth:5013","ApiKey":"","Uri":"/kalum-auth/v1/account/login","Method":"POST","ResponseCode":201,"ResponseTime":7451540,"ClientIp":"127.0.0.1","Pid":"1","Level":20,"Message":"El login fue exitoso y fueron asignados los roles correspondientes","DateTime":"2026-09-12T00:09:01Z","Version":1}

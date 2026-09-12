@@ -21,22 +21,25 @@ Log.Logger = new LoggerConfiguration()
     .Enrich.FromLogContext()
     .WriteTo.Console(outputTemplate: "{Message:lj}{NewLine}")
     .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Level == LogEventLevel.Information && le.Properties.ContainsKey("SourceContext") && le.Properties["SourceContext"].ToString().Contains("ApiKalumAuth.Shared.Helpers"))
-    .WriteTo.File("logs/logEventKalumAuthApi.out", outputTemplate: "{Message:lj}{NewLine}", rollingInterval: RollingInterval.Day))
+    .WriteTo.File("/var/log/app/logEventKalumAuthApi.out", outputTemplate: "{Message:lj}{NewLine}", rollingInterval: RollingInterval.Day))
     .WriteTo.Logger(lc => lc.Filter.ByIncludingOnly(le => le.Level == LogEventLevel.Error && le.Properties.ContainsKey("SourceContext") && le.Properties["SourceContext"].ToString().Contains("ApiKalumAuth.Shared.Helpers"))
-    .WriteTo.File("logs/logEventKalumAuthApi.error", outputTemplate: "{Message:lj}{NewLine}", rollingInterval: RollingInterval.Day))
+    .WriteTo.File("/var/log/app/logEventKalumAuthApi.error", outputTemplate: "{Message:lj}{NewLine}", rollingInterval: RollingInterval.Day))
     .CreateLogger();
 // Add services to the container.
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Host.UseSerilog();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowKalumApp", policy =>
     {
-       policy.AllowAnyOrigin()
+       policy
+        .AllowAnyOrigin()
         .AllowAnyHeader()
         .AllowAnyMethod(); 
     });
 });
+
 builder.Services.AddAutoMapper(typeof(Program));
 builder.Services.AddTransient<IUtils,Utils>();
 builder.Services.AddOpenApi();
@@ -95,8 +98,14 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 var app = builder.Build();
+
+app.UseRouting();
 app.UseCors("AllowKalumApp");
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
