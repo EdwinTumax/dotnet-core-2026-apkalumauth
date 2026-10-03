@@ -66,8 +66,9 @@ namespace ApiKalumAuth.Controllers
             var result = await this._roleManager.CreateAsync(identityRole);
             if(result.Succeeded)
             {
+                RoleListDTO roleListDTO = this._mapper.Map<IdentityRole, RoleListDTO>(identityRole);
                 this._utils.Log(initialTime,"La creación del rol fue creado con exito",201, TypeLog.INFORMATION, HttpContext, MethodLog.POST);
-                return new CreatedAtRouteResult("GetById", new {id = identityRole.Id});
+                return new CreatedAtRouteResult("GetById", new {id = identityRole.Id}, ApiResponseDTO<Object>.Ok(roleListDTO));
             }
             this._utils.Log(initialTime,"Error al momento de crear el rol",400, TypeLog.ERROR, HttpContext, MethodLog.GET);
             return BadRequest(ApiResponseDTO<Object>.Fail("Error al crear role", result.Errors.Select(e => e.Description).ToList()));
